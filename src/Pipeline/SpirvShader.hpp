@@ -580,6 +580,7 @@ public:
 	{
 		bool Matrix : 1;
 		bool Shader : 1;
+		bool Geometry : 1;
 		bool StorageImageMultisample : 1;
 		bool ClipDistance : 1;
 		bool CullDistance : 1;
@@ -737,7 +738,7 @@ public:
 		}
 
 		Decorations(const Decorations &) = default;
-		Decorations& operator= (const Decorations &) = default;
+		Decorations &operator=(const Decorations &) = default;
 
 		void Apply(const Decorations &src);
 
@@ -980,7 +981,7 @@ public:
 	            const SpirvBinary &insns,
 	            const vk::RenderPass *renderPass,
 	            uint32_t subpassIndex,
-		    const VkRenderingInputAttachmentIndexInfoKHR *inputAttachmentMapping,
+	            const VkRenderingInputAttachmentIndexInfoKHR *inputAttachmentMapping,
 	            bool robustBufferAccess);
 
 	~SpirvShader();
@@ -1646,6 +1647,7 @@ public:
 	std::array<SIMD::Int, 2> windowSpacePosition;  // TODO(b/236162233): SIMD::Int2
 	Int layer;                                     // slice offset into input attachments for multiview, even if the shader doesn't use ViewIndex
 	Int instanceID;
+	SIMD::Int primitiveID;
 	SIMD::Int vertexIndex;
 	std::array<SIMD::Float, 4> fragCoord;   // TODO(b/236162233): SIMD::Float4
 	std::array<SIMD::Float, 2> pointCoord;  // TODO(b/236162233): SIMD::Float2

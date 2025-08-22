@@ -52,6 +52,8 @@ struct Primitive
 	PlaneEquation clipDistance[MAX_CLIP_DISTANCES];
 	PlaneEquation cullDistance[MAX_CULL_DISTANCES];
 
+	int32_t primitiveID = 0;
+
 	// Masks for two-sided stencil
 	int64_t clockwiseMask;
 	int64_t invClockwiseMask;

@@ -630,7 +630,7 @@ void DrawCall::processPrimitives(vk::Device *device, DrawCall *draw, BatchData *
 	MARL_SCOPED_EVENT("PRIMITIVES draw %d batch %d", draw->id, batch->id);
 	auto triangles = &batch->triangles[0];
 	auto primitives = &batch->primitives[0];
-	batch->numVisible = draw->setupPrimitives(device, triangles, primitives, draw, batch->numPrimitives);
+	batch->numVisible = draw->setupPrimitives(device, triangles, primitives, draw, batch->firstPrimitive, batch->numPrimitives);
 }
 
 void DrawCall::processPixels(vk::Device *device, const marl::Loan<DrawCall> &draw, const marl::Loan<BatchData> &batch, const std::shared_ptr<marl::Finally> &finally)
@@ -728,7 +728,7 @@ void DrawCall::processPrimitiveVertices(
 	}
 }
 
-int DrawCall::setupSolidTriangles(vk::Device *device, Triangle *triangles, Primitive *primitives, const DrawCall *drawCall, int count)
+int DrawCall::setupSolidTriangles(vk::Device *device, Triangle *triangles, Primitive *primitives, const DrawCall *drawCall, int firstIndex, int count)
 {
 	auto &state = drawCall->setupState;
 
@@ -765,6 +765,10 @@ int DrawCall::setupSolidTriangles(vk::Device *device, Triangle *triangles, Primi
 
 		if(drawCall->setupRoutine(device, primitives, triangles, &polygon, data))
 		{
+			for(int s = 0; s < ms; s++)
+			{
+				(primitives + s)->primitiveID = firstIndex + i;
+			}
 			primitives += ms;
 			visible++;
 		}
@@ -773,7 +777,7 @@ int DrawCall::setupSolidTriangles(vk::Device *device, Triangle *triangles, Primi
 	return visible;
 }
 
-int DrawCall::setupWireframeTriangles(vk::Device *device, Triangle *triangles, Primitive *primitives, const DrawCall *drawCall, int count)
+int DrawCall::setupWireframeTriangles(vk::Device *device, Triangle *triangles, Primitive *primitives, const DrawCall *drawCall, int firstIndex, int count)
 {
 	auto &state = drawCall->setupState;
 
@@ -815,10 +819,14 @@ int DrawCall::setupWireframeTriangles(vk::Device *device, Triangle *triangles, P
 		lines[2].v0 = v2;
 		lines[2].v1 = v0;
 
-		for(int i = 0; i < 3; i++)
+		for(int k = 0; k < 3; k++)
 		{
-			if(setupLine(device, *primitives, lines[i], *drawCall))
+			if(setupLine(device, *primitives, lines[k], *drawCall))
 			{
+				for(int s = 0; s < ms; s++)
+				{
+					(primitives + s)->primitiveID = firstIndex + i;
+				}
 				primitives += ms;
 				visible++;
 			}
@@ -828,7 +836,7 @@ int DrawCall::setupWireframeTriangles(vk::Device *device, Triangle *triangles, P
 	return visible;
 }
 
-int DrawCall::setupPointTriangles(vk::Device *device, Triangle *triangles, Primitive *primitives, const DrawCall *drawCall, int count)
+int DrawCall::setupPointTriangles(vk::Device *device, Triangle *triangles, Primitive *primitives, const DrawCall *drawCall, int firstIndex, int count)
 {
 	auto &state = drawCall->setupState;
 
@@ -860,10 +868,14 @@ int DrawCall::setupPointTriangles(vk::Device *device, Triangle *triangles, Primi
 		points[1].v0 = v1;
 		points[2].v0 = v2;
 
-		for(int i = 0; i < 3; i++)
+		for(int k = 0; k < 3; k++)
 		{
-			if(setupPoint(device, *primitives, points[i], *drawCall))
+			if(setupPoint(device, *primitives, points[k], *drawCall))
 			{
+				for(int s = 0; s < ms; s++)
+				{
+					(primitives + s)->primitiveID = firstIndex + i;
+				}
 				primitives += ms;
 				visible++;
 			}
@@ -873,7 +885,7 @@ int DrawCall::setupPointTriangles(vk::Device *device, Triangle *triangles, Primi
 	return visible;
 }
 
-int DrawCall::setupLines(vk::Device *device, Triangle *triangles, Primitive *primitives, const DrawCall *drawCall, int count)
+int DrawCall::setupLines(vk::Device *device, Triangle *triangles, Primitive *primitives, const DrawCall *drawCall, int firstIndex, int count)
 {
 	auto &state = drawCall->setupState;
 
@@ -884,6 +896,10 @@ int DrawCall::setupLines(vk::Device *device, Triangle *triangles, Primitive *pri
 	{
 		if(setupLine(device, *primitives, *triangles, *drawCall))
 		{
+			for(int s = 0; s < ms; s++)
+			{
+				(primitives + s)->primitiveID = firstIndex + i;
+			}
 			primitives += ms;
 			visible++;
 		}
@@ -894,7 +910,7 @@ int DrawCall::setupLines(vk::Device *device, Triangle *triangles, Primitive *pri
 	return visible;
 }
 
-int DrawCall::setupPoints(vk::Device *device, Triangle *triangles, Primitive *primitives, const DrawCall *drawCall, int count)
+int DrawCall::setupPoints(vk::Device *device, Triangle *triangles, Primitive *primitives, const DrawCall *drawCall, int firstIndex, int count)
 {
 	auto &state = drawCall->setupState;
 
@@ -905,6 +921,10 @@ int DrawCall::setupPoints(vk::Device *device, Triangle *triangles, Primitive *pr
 	{
 		if(setupPoint(device, *primitives, *triangles, *drawCall))
 		{
+			for(int s = 0; s < ms; s++)
+			{
+				(primitives + s)->primitiveID = firstIndex + i;
+			}
 			primitives += ms;
 			visible++;
 		}

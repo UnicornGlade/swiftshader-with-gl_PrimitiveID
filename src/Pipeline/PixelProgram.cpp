@@ -88,6 +88,8 @@ void PixelProgram::setBuiltins(Int &x, Int &y, SIMD::Float (&z)[4], SIMD::Float 
 		y1 = 1.0f + y0;
 	}
 
+	routine.primitiveID = SIMD::Int(*Pointer<Int>(primitive + OFFSET(Primitive, primitiveID)));
+
 	routine.fragCoord[0] = SIMD::Float(Float(x)) + SIMD::Float(x0, x1, x0, x1);
 	routine.fragCoord[1] = SIMD::Float(Float(y)) + SIMD::Float(y0, y0, y1, y1);
 	routine.fragCoord[2] = z[0];  // sample 0

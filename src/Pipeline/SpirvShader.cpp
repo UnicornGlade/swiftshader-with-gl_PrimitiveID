@@ -391,6 +391,7 @@ Spirv::Spirv(
 				{
 				case spv::CapabilityMatrix: capabilities.Matrix = true; break;
 				case spv::CapabilityShader: capabilities.Shader = true; break;
+				case spv::CapabilityGeometry: capabilities.Geometry = true; break;  // we don't support geometry shaders, but we support gl_PrimitiveID (which leads compiler to add geometry capability flag)
 				case spv::CapabilityStorageImageMultisample: capabilities.StorageImageMultisample = true; break;
 				case spv::CapabilityClipDistance: capabilities.ClipDistance = true; break;
 				case spv::CapabilityCullDistance: capabilities.CullDistance = true; break;

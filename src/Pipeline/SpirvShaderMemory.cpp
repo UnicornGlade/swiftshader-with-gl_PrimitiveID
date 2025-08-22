@@ -21,6 +21,19 @@
 
 #include <spirv/unified1/spirv.hpp>
 
+namespace {
+
+bool isPrimitiveIDPointer(const sw::Spirv &shader, sw::Spirv::Object::ID pointerId)
+{
+	const auto d = shader.GetDecorationsForId(pointerId);
+	if(d.HasBuiltIn && d.BuiltIn == spv::BuiltInPrimitiveId) return true;
+
+	const auto it = shader.inputBuiltins.find(spv::BuiltInPrimitiveId);
+	return (it != shader.inputBuiltins.end() && it->second.Id == pointerId);
+}
+
+}  // namespace
+
 namespace sw {
 
 void SpirvEmitter::EmitLoad(InsnIterator insn)
@@ -28,6 +41,15 @@ void SpirvEmitter::EmitLoad(InsnIterator insn)
 	bool atomic = (insn.opcode() == spv::OpAtomicLoad);
 	Object::ID resultId = insn.word(2);
 	Object::ID pointerId = insn.word(3);
+
+	// handle gl_PrimitiveID
+	if(isPrimitiveIDPointer(shader, pointerId))
+	{
+		auto &dst = createIntermediate(resultId, 1);
+		dst.move(0, routine->primitiveID);
+		return;
+	}
+
 	auto &result = shader.getObject(resultId);
 	auto &resultTy = shader.getType(result);
 	auto &pointer = shader.getObject(pointerId);
